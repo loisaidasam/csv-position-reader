@@ -1,5 +1,6 @@
-"""
-A custom CSV reader implementation for specific file access.
+"""csv-position-reader
+
+A custom CSV reader implementation with direct file access
 
 The default builtin `csv` lib uses a read-ahead buffer on the file pointer,
 making `fp.tell()` yield inaccurate results.
@@ -14,6 +15,10 @@ https://stackoverflow.com/questions/12109622/how-to-know-the-byte-position-of-a-
 import csv
 
 
+class HeaderNotSetError(Exception):
+    pass
+
+
 class reader(object):
     """Like `csv.reader`, but yield successive pairs of:
 
@@ -24,6 +29,11 @@ class reader(object):
 
     https://docs.python.org/2/library/csv.html
     """
+    fp = None
+    dialect = 'excel'
+    fmtparams = None
+    line_iterator = None
+
     def __init__(self, csvfile, dialect='excel', **fmtparams):
         self.fp = csvfile
         self.dialect = dialect
@@ -57,13 +67,22 @@ class DictReader(reader):
         <dict> row,
     )
     """
+    header = None
+
     def __init__(self, f, fieldnames=None, restkey=None, restval=None,
                  dialect='excel', *args, **kwds):
         super(DictReader, self).__init__(f, dialect, *args, **kwds)
         # TODO: Implement fieldnames/restkey/restval
 
+    def seek(self, position, check_header_set=True):
+        if check_header_set and not self.header:
+            # An attempt to seek and then read with an empty `header` will lead
+            # to seeking back to 0, which will render the seek useless.
+            raise HeaderNotSetError
+        super(DictReader, self).seek(position)
+
     def set_header(self):
-        self.seek(0)
+        self.seek(0, check_header_set=False)
         self.header = self._get_next_row()
 
     def _get_next_row_dict(self):
