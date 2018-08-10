@@ -10,6 +10,12 @@ References:
 - https://stackoverflow.com/questions/14145082/file-tell-inconsistency/14145118#14145118
 - https://stackoverflow.com/questions/12109622/how-to-know-the-byte-position-of-a-row-of-a-csv-file-in-python/12110160#12110160
 
+## Installation
+
+```
+pip install csv-position-reader
+```
+
 ## Usage
 
 ```python
