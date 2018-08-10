@@ -2,14 +2,13 @@
 
 A custom CSV reader implementation with direct file access
 
-The default builtin `csv` lib uses a read-ahead buffer on the file pointer,
-making `fp.tell()` yield inaccurate results.
+The default builtin Python csv lib uses an 8KB read-ahead buffer on the file pointer, making fp.tell() yield inaccurate results. This library addresses that head on, explicitly passing back the file pointer position with each row, as well as allowing for direct seeking.
 
-Some references:
+References:
 
-https://stackoverflow.com/questions/14145082/file-tell-inconsistency/14145118#14145118
-https://stackoverflow.com/questions/19151/build-a-basic-python-iterator/24377#24377
-https://stackoverflow.com/questions/12109622/how-to-know-the-byte-position-of-a-row-of-a-csv-file-in-python/12110160#12110160
+- https://docs.python.org/2/library/csv.html
+- https://stackoverflow.com/questions/14145082/file-tell-inconsistency/14145118#14145118
+- https://stackoverflow.com/questions/12109622/how-to-know-the-byte-position-of-a-row-of-a-csv-file-in-python/12110160#12110160
 """
 
 import csv
@@ -26,8 +25,6 @@ class reader(object):
         <int> file position,
         <list> row,
     )
-
-    https://docs.python.org/2/library/csv.html
     """
     fp = None
     dialect = 'excel'
