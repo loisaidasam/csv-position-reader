@@ -8,6 +8,7 @@ import csv_position_reader
 DIR_TESTS = os.path.dirname(os.path.abspath(__file__))
 DIR_DATA = os.path.join(DIR_TESTS, 'data')
 FILENAME_BASIC = os.path.join(DIR_DATA, 'basic.csv')
+FILENAME_NEWLINES = os.path.join(DIR_DATA, 'csv-with-newlines.csv')
 
 
 class ReaderTests(unittest.TestCase):
@@ -43,6 +44,26 @@ class ReaderTests(unittest.TestCase):
             row = reader.next()
             # TODO: Is there anything we can do here?
             self.assertEqual(row, (75, ['k', 'Brooklyn']))
+
+    def test_csv_with_newlines(self):
+        with open(FILENAME_NEWLINES, 'r') as fp:
+            reader = csv_position_reader.reader(fp)
+            row = reader.next()
+            self.assertEqual(row, (0, ['artist', 'album', 'description']))
+            row = reader.next()
+            self.assertEqual(row, (26, [
+                "Trevor Powers",
+                "Mulberry Violence",
+                "Really great breakout record for Trevor Powers, formerly of Youth Lagoon. Something exciting and new for him. Bold!",
+            ]))
+            row = reader.next()
+            self.assertEqual(row, (177, [
+                "Anna Meredith & Antonio Vivaldi",
+                "ANNO: Four Seasons",
+                "Speaking of bold, who has the gumption to claim partial credit for the Four Seasons?!\n \n Wow."
+            ]))
+            with self.assertRaises(StopIteration):
+                reader.next()
 
 
 class DictReaderTests(unittest.TestCase):
@@ -108,3 +129,21 @@ class DictReaderTests(unittest.TestCase):
                 {'favorite_color': 'Brooklyn', 'name': 'k'},
             )
             self.assertEqual(row, row_expected)
+
+    def test_csv_with_newlines(self):
+        with open(FILENAME_NEWLINES, 'r') as fp:
+            reader = csv_position_reader.DictReader(fp)
+            row = reader.next()
+            self.assertEqual(row, (26, {
+                "artist": "Trevor Powers",
+                "album": "Mulberry Violence",
+                "description": "Really great breakout record for Trevor Powers, formerly of Youth Lagoon. Something exciting and new for him. Bold!",
+            }))
+            row = reader.next()
+            self.assertEqual(row, (177, {
+                "artist": "Anna Meredith & Antonio Vivaldi",
+                "album": "ANNO: Four Seasons",
+                "description": "Speaking of bold, who has the gumption to claim partial credit for the Four Seasons?!\n \n Wow.",
+            }))
+            with self.assertRaises(StopIteration):
+                reader.next()
